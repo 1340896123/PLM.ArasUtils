@@ -202,6 +202,249 @@ items.CheckError();
 - `IsCurrent<T>(this Item item, T defaultValue = default)`
 - `IsReleased<T>(this Item item, T defaultValue = default)`
 
+## Aras IOM API 参考手册
+
+PLM.ArasUtils 基于以下 Aras Innovator .NET API 方法构建，了解原生 API 有助于更好地使用扩展方法。
+
+### 连接方法
+
+#### IomFactory - 连接工厂类
+
+```csharp
+// 基本连接
+HttpServerConnection connection = IomFactory.CreateHttpServerConnection(
+    "http://server/InnovatorServer.aspx");
+
+// 带认证的连接
+HttpServerConnection connection = IomFactory.CreateHttpServerConnection(
+    "http://server/InnovatorServer.aspx",
+    "Database",
+    "username",
+    "password");
+
+// 创建 Innovator 实例
+Innovator innovator = IomFactory.CreateInnovator(connection);
+
+// Windows 认证
+HttpServerConnection winAuthConnection = IomFactory.CreateWinAuthHttpServerConnection(
+    "http://server/InnovatorServer.aspx", "Database");
+```
+
+#### HttpServerConnection 操作
+
+```csharp
+// 登录和注销
+Item loginResult = connection.Login();
+if (loginResult.isError()) {
+    Console.WriteLine("登录失败: " + loginResult.getErrorString());
+}
+
+// 执行操作
+connection.Logout();
+
+// 获取信息
+string dbName = connection.GetDatabaseName();
+string userId = connection.getUserID();
+Item databases = connection.GetDatabases();
+Item licenseInfo = connection.GetLicenseInfo();
+```
+
+### 核心 Item 操作方法
+
+#### 创建和初始化
+
+```csharp
+// 创建不同类型的 Item
+Item emptyItem = innovator.newItem();
+Item part = innovator.newItem("Part");
+Item newPart = innovator.newItem("Part", "add");
+
+// 从 AML 加载
+Item item = innovator.newItem();
+item.loadAML("<Item type='Part' id='12345' />");
+```
+
+#### 属性操作
+
+```csharp
+// 设置属性
+item.setProperty("name", "我的零件");
+item.setProperty("item_number", "PART-001");
+
+// 获取属性
+string name = item.getProperty("name");
+string number = item.getProperty("item_number");
+
+// 移除属性
+item.removeProperty("description");
+
+// 属性特性操作
+item.setPropertyAttribute("name", "multilingual", "true");
+string multilingual = item.getPropertyAttribute("name", "multilingual");
+```
+
+#### 关系操作
+
+```csharp
+// 添加关系
+Item relationship = item.addRelationship("Related Item");
+relationship.setProperty("related_id", "12345");
+
+// 创建新关系
+Item newRel = item.createRelationship("CAD", "add");
+
+// 获取关系
+Item relationships = item.fetchRelationships("Related Items");
+
+// 移除关系
+item.removeRelationship(relationship);
+```
+
+#### 标识符操作
+
+```csharp
+// ID 操作
+string id = item.getID();
+item.setID("12345");
+item.setNewID();
+
+// 类型操作
+string itemType = item.getType();
+item.setType("Part");
+```
+
+#### 应用和保存
+
+```csharp
+// 应用更改
+Item result = item.apply();  // 默认动作
+Item result = item.apply("add");    // 添加
+Item result = item.apply("update"); // 更新
+Item result = item.apply("delete"); // 删除
+
+// 直接执行查询
+Item sqlResult = innovator.applySQL("SELECT * FROM [Part] WHERE item_number = 'PART-001'");
+Item amlResult = innovator.applyAML("<Item type='Part' action='get' select='name,item_number' />");
+Item methodResult = innovator.applyMethod("methodName", parametersAML);
+
+// 动作操作
+string action = item.getAction();
+item.setAction("update");
+```
+
+#### 查询操作
+
+```csharp
+// XPath 查询
+Item children = item.getItemsByXPath("//Relationships/Item[@type='Related Item']");
+```
+
+#### 工作流操作
+
+```csharp
+// 启动工作流
+Item wfResult = item.startWorkflow("WorkflowName");
+
+// 生命周期操作
+Item promoteResult = item.promote("StateName", "Comment");
+Item cancelResult = item.cancelWorkflow();
+Item closeResult = item.closeWorkflow();
+```
+
+#### 锁定操作
+
+```csharp
+// 锁定和解锁
+Item lockResult = item.lockItem();
+Item unlockResult = item.unlockItem();
+bool isLocked = item.isLocked();
+```
+
+#### 错误处理
+
+```csharp
+// 检查错误
+bool hasError = item.isError();
+string errorCode = item.getErrorCode();
+string errorMessage = item.getErrorString();
+string errorDetail = item.getErrorDetail();
+```
+
+#### Item 操作
+
+```csharp
+// 克隆和子项操作
+Item cloned = item.clone();
+item.removeItem(childItem);
+item.appendItem(childItem);
+```
+
+### 文件操作方法
+
+#### 文件上传
+
+```csharp
+// 附加物理文件
+item.attachPhysicalFile(@"C:\path\to\file.pdf", "document.pdf");
+item.attachPhysicalFile(@"C:\temp\file.pdf", "document.pdf", true); // 上传后删除
+
+// 通过流附加文件
+using (FileStream stream = File.OpenRead(@"C:\path\to\file.pdf"))
+{
+    item.attachPhysicalFileViaStream(stream, "document.pdf");
+}
+
+// 设置文件属性
+item.setFileProperty("file_property", @"C:\path\to\file.pdf");
+
+// 通过流设置文件属性
+using (FileStream stream = File.OpenRead(@"C:\path\to\file.pdf"))
+{
+    item.setFilePropertyViaStream("file_property", stream, "document.pdf");
+}
+
+// 文件名操作
+string fileName = item.getFileName();
+item.setFileName("document.pdf");
+```
+
+#### 文件下载
+
+```csharp
+// 获取文件数据
+byte[] fileData = item.fetchFileProperty("file_property");
+
+// 通过流获取文件
+using (Stream stream = item.fetchFilePropertyWithStream("file_property"))
+{
+    // 处理文件流
+}
+```
+
+#### 高级文件管理
+
+```csharp
+// 检入管理器
+CheckinManager checkinManager = IomFactory.CreateCheckinManager(configurationItem);
+Item checkinResult = checkinManager.Checkin(2); // 使用2个线程
+
+// 异步检入
+await checkinManager.CheckinAsync();
+await checkinManager.CheckinPauseAsync();
+await checkinManager.CheckinResumeAsync();
+await checkinManager.CheckinCancelAsync();
+
+// 检出管理器
+CheckoutManager checkoutManager = IomFactory.CreateCheckoutManager(connection);
+DownloadResult downloadResult = checkoutManager.DownloadFiles();
+
+// 异步下载
+await checkoutManager.DownloadFilesAsync();
+await checkoutManager.DownloadFilesPauseAsync();
+await checkoutManager.DownloadFilesResumeAsync();
+await checkoutManager.DownloadFilesCancelAsync();
+```
+
 ## 使用示例
 
 ### 基本查询和操作
@@ -251,6 +494,74 @@ var result = items
 // 获取属性的本地化标签
 var makeBuyLabel = item.GetListLabelByLang("make_buy", "zc");
 var statusLabel = item.GetFilterListLabel("status", "en");
+```
+
+### 完整工作流示例
+```csharp
+// 1. 创建连接和登录
+HttpServerConnection connection = IomFactory.CreateHttpServerConnection(
+    "http://myserver/InnovatorServer.aspx",
+    "MyDatabase",
+    "username",
+    "password");
+
+Item loginResult = connection.Login();
+if (loginResult.isError()) {
+    Console.WriteLine("登录失败: " + loginResult.getErrorString());
+    return;
+}
+
+// 2. 创建 Innovator 实例
+Innovator innovator = IomFactory.CreateInnovator(connection);
+
+// 3. 使用 PLM.ArasUtils 扩展方法创建零件
+var newPart = innovator.newItem("Part", "add");
+newPart.setProperty("name", "测试零件")
+       .setProperty("item_number", "TEST-001");
+
+// 4. 附加文件
+newPart.attachPhysicalFile(@"C:\documents\spec.pdf", "技术规范.pdf");
+
+// 5. 应用并检查错误
+var result = newPart.apply();
+result.CheckError(); // 使用扩展方法进行错误检查
+
+// 6. 查询并使用 LINQ
+var query = innovator.newItem("Part", "get")
+    .setProperty("item_number", "TEST-001")
+    .apply();
+
+if (!query.isError() && query.getItemCount() > 0) {
+    var part = query.getItemByIndex(0);
+
+    // 使用类型安全的属性访问
+    var partInfo = new {
+        Id = part.Id<string>(),
+        Name = part.KeyedName<string>(),
+        Created = part.CreatedOn<DateTime>(),
+        Modified = part.ModifiedOn<DateTime>(),
+        IsReleased = part.IsReleased<bool>()
+    };
+
+    Console.WriteLine($"找到零件: {partInfo.Name} (ID: {partInfo.Id})");
+    Console.WriteLine($"创建时间: {partInfo.Created}");
+    Console.WriteLine($"是否已发布: {partInfo.IsReleased}");
+}
+
+// 7. 批量操作示例
+var allParts = innovator.newItem("Part", "get").apply().ToList();
+var makeParts = allParts
+    .Where(p => p.getProperty<string>("make_buy") == "Make")
+    .ToList();
+
+// 批量更新
+makeParts.SetProperty("review_status", "pending")
+         .SetAction("update")
+         .apply()
+         .CheckError();
+
+// 8. 登出
+connection.Logout();
 ```
 
 ## 安装
@@ -319,13 +630,231 @@ var result = parts
 - **Aras v11 SP12**: Newtonsoft.Json v8.0.0.0
 - **Aras v12 SP9**: Newtonsoft.Json v11.0.0.0
 
-## 注意事项
+## 最佳实践和注意事项
 
-1. **版本兼容性**: 确保使用与 Aras 版本匹配的配置
-2. **错误处理**: 建议使用 `CheckError()` 方法进行错误检查
-3. **性能优化**: 对于大数据集，考虑使用 `AsParallel()` 进行并行处理
-4. **本地化**: 列表标签获取支持多语言，默认语言为中文 ("zc")
-5. **内存管理**: 处理大量数据时注意内存使用
+### 🚨 重要注意事项
+
+#### 1. 登录要求
+- **必须先登录**: 在调用任何需要服务器交互的方法之前，必须先调用 `connection.Login()`
+- **检查登录结果**: 始终检查登录返回的 Item 是否为错误项
+- **会话管理**: 注意服务器配置的会话超时设置，未登录就发送请求会导致异常
+
+```csharp
+Item loginResult = connection.Login();
+if (loginResult.isError()) {
+    Console.WriteLine("登录失败: " + loginResult.getErrorString());
+    return;
+}
+```
+
+#### 2. 错误处理
+- **始终检查错误**: 使用 `isError()` 方法检查操作结果
+- **使用扩展方法**: 推荐使用 `CheckError()` 扩展方法进行错误检查
+- **错误信息**: 获取详细的错误信息用于调试
+
+```csharp
+// 原生方式
+if (result.isError()) {
+    Console.WriteLine($"错误: {result.getErrorString()}");
+}
+
+// 使用扩展方法
+result.CheckError(); // 如果有错误会抛出异常
+```
+
+#### 3. 资源管理
+- **释放资源**: 使用 `using` 语句或手动调用 `Dispose()` 释放管理器资源
+- **连接管理**: 及时调用 `Logout()` 释放服务器连接
+
+```csharp
+// 使用 using 语句
+using (var connection = IomFactory.CreateHttpServerConnection(url, db, user, pass))
+{
+    connection.Login();
+    // 执行操作
+    connection.Logout();
+}
+```
+
+#### 4. 性能优化
+- **批量操作**: 对于大量数据，使用批量操作方法
+- **并行处理**: 使用 `AsParallel()` 进行并行处理大数据集
+- **异步文件操作**: 对于大文件操作，使用异步方法避免阻塞
+- **连接复用**: 复用连接对象避免重复创建
+
+```csharp
+// 并行处理大数据集
+var parts = inn.newItem("Part", "get").apply()
+    .ToList()
+    .AsParallel()
+    .Where(p => p.getProperty<string>("make_buy") == "Make")
+    .ToList();
+
+// 异步文件上传
+await checkinManager.CheckinAsync();
+```
+
+#### 5. 线程安全
+- **检入线程数**: 检入操作支持 1-10 个线程，根据服务器性能调整
+- **避免并发修改**: 同一 Item 的并发修改可能导致数据不一致
+- **连接共享**: HttpServerConnection 不是线程安全的
+
+#### 6. 文件操作
+- **文件大小**: 对于大文件操作，考虑使用流式处理
+- **网络稳定性**: 确保网络连接稳定，特别是对于大文件上传下载
+- **临时文件**: 合理设置临时文件清理策略
+
+```csharp
+// 流式处理大文件
+using (FileStream stream = File.OpenRead(largeFile))
+{
+    item.attachPhysicalFileViaStream(stream, "large_file.pdf");
+}
+```
+
+#### 7. 权限和安全
+- **权限检查**: 确保用户具有执行相应操作所需的权限
+- **敏感信息**: 不要在代码中硬编码密码，使用配置文件或环境变量
+- **OAuth 支持**: 支持多种认证方式，选择适合的安全方案
+
+### 💡 性能优化建议
+
+#### 1. 查询优化
+```csharp
+// 好的做法：指定需要的字段
+Item query = innovator.newItem("Part", "get");
+query.setProperty("select", "item_number,name,created_on");
+
+// 避免查询过多数据
+query.setProperty("page_size", "100");
+```
+
+#### 2. 批量操作
+```csharp
+// 批量设置属性
+items.SetProperty("status", "updated")
+     .SetAction("update")
+     .apply();
+```
+
+#### 3. 缓存策略
+```csharp
+// 缓存频繁访问的数据
+private static readonly Dictionary<string, string> _labelCache = new();
+
+public string GetCachedLabel(string property, string lang)
+{
+    string key = $"{property}_{lang}";
+    if (!_labelCache.TryGetValue(key, out string label))
+    {
+        label = item.GetListLabelByLang(property, lang);
+        _labelCache[key] = label;
+    }
+    return label;
+}
+```
+
+### 🔧 调试技巧
+
+#### 1. AML 调试
+```csharp
+// 打印 AML 查询
+Console.WriteLine(item.apply().dom.xml());
+```
+
+#### 2. 错误日志
+```csharp
+try {
+    var result = item.apply();
+    result.CheckError();
+} catch (Exception ex) {
+    Console.WriteLine($"操作失败: {ex.Message}");
+    // 记录详细的错误信息
+}
+```
+
+#### 3. 性能监控
+```csharp
+var stopwatch = Stopwatch.StartNew();
+var result = item.apply();
+stopwatch.Stop();
+Console.WriteLine($"操作耗时: {stopwatch.ElapsedMilliseconds}ms");
+```
+
+### 📋 版本兼容性
+
+#### Aras 版本支持
+- **Released 配置**: com.broadway.aras.2023r (v14.1.3)
+- **11sp12Released 配置**: Aras v11 SP12
+- **12sp9Released 配置**: Aras v12 SP9
+
+#### .NET 兼容性
+- **目标框架**: .NET Standard 2.0
+- **支持平台**: .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5.0+
+
+### 🌐 本地化支持
+
+#### 多语言标签
+```csharp
+// 支持的语言代码
+var zhLabel = item.GetListLabelByLang("make_buy", "zc");  // 简体中文
+var enLabel = item.GetListLabelByLang("make_buy", "en");  // 英文
+var jaLabel = item.GetListLabelByLang("make_buy", "ja");  // 日文
+```
+
+#### 默认语言
+- 列表标签获取默认语言为中文 ("zc")
+- 建议在多语言环境中明确指定语言代码
+
+### 🔄 常见问题和解决方案
+
+#### 1. 连接问题
+```csharp
+// 连接超时
+connection.setConnectionTimeout(30000); // 30秒超时
+
+// 重试机制
+int retryCount = 3;
+while (retryCount-- > 0)
+{
+    try {
+        var result = item.apply();
+        break;
+    } catch (Exception ex) {
+        if (retryCount == 0) throw;
+        Thread.Sleep(1000); // 等待1秒后重试
+    }
+}
+```
+
+#### 2. 内存泄漏
+```csharp
+// 正确的资源释放
+using (var innovator = IomFactory.CreateInnovator(connection))
+{
+    // 使用 innovator
+} // 自动释放
+```
+
+#### 3. 大数据处理
+```csharp
+// 分页处理
+int pageSize = 1000;
+int page = 0;
+while (true)
+{
+    var query = innovator.newItem("Part", "get");
+    query.setProperty("page_size", pageSize.ToString());
+    query.setProperty("page", page.ToString());
+
+    var results = query.apply();
+    if (results.getItemCount() == 0) break;
+
+    // 处理当前页数据
+    ProcessPage(results);
+    page++;
+}
+```
 
 ## 构建
 
