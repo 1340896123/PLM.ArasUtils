@@ -1,8 +1,9 @@
 ﻿# PLM.ArasUtils
 
 [![NuGet](https://img.shields.io/nuget/v/PLM.ArasUtils.svg)](https://www.nuget.org/packages/PLM.ArasUtils/)
-[![GitHub license](https://img.shields.io/github/license/liaoyujie/PLM.ArasUtils.svg)](https://github.com/liaoyujie/PLM.ArasUtils/blob/master/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/liaoyujie/PLM.ArasUtils.svg)](https://github.com/liaoyujie/PLM.ArasUtils/stargazers)
+[![NuGet Info](https://img.shields.io/badge/nuget.info-PLM.ArasUtils-blue)](https://nuget.info/packages/PLM.ArasUtils)
+[![GitHub license](https://img.shields.io/github/license/1340896123/PLM.ArasUtils.svg)](https://github.com/1340896123/PLM.ArasUtils/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/1340896123/PLM.ArasUtils.svg)](https://github.com/1340896123/PLM.ArasUtils/stargazers)
 
 ## 项目概述
 
@@ -16,8 +17,9 @@ PLM.ArasUtils 是一个针对 Aras Innovator PLM 系统的 .NET 扩展库，提�
 - **目标框架**: .NET Standard 2.0
 - **语言版本**: C# 13
 - **许可证**: MIT License
-- **GitHub**: https://github.com/liaoyujie/PLM.ArasUtils
+- **GitHub**: https://github.com/1340896123/PLM.ArasUtils
 - **NuGet**: https://www.nuget.org/packages/PLM.ArasUtils/
+- **NuGet Info**: https://nuget.info/packages/PLM.ArasUtils
 
 ## 支持的 Aras 版本
 
@@ -253,16 +255,28 @@ var statusLabel = item.GetFilterListLabel("status", "en");
 
 ## 安装
 
+### NuGet 包信息
+
+- **包名**: `PLM.ArasUtils`
+- **版本**: 1.0.7
+- **NuGet Gallery**: https://www.nuget.org/packages/PLM.ArasUtils/
+- **NuGet Info**: https://nuget.info/packages/PLM.ArasUtils
+
 ### NuGet 安装
 
+#### Package Manager Console
 ```bash
 Install-Package PLM.ArasUtils
 ```
 
-或者通过 .NET CLI:
-
+#### .NET CLI
 ```bash
 dotnet add package PLM.ArasUtils
+```
+
+#### 项目文件引用
+```xml
+<PackageReference Include="PLM.ArasUtils" Version="1.0.7" />
 ```
 
 ## 快速开始
@@ -323,8 +337,15 @@ var result = parts
 
 ## 许可证
 
-请查看项目的许可证文件了解详细信息。
+本项目使用 MIT 许可证。详情请查看 [LICENSE](https://github.com/1340896123/PLM.ArasUtils/blob/main/LICENSE) 文件。
 
 ## 贡献
 
-欢迎提交 Issue 和 Pull Request 来改进这个项目。
+欢迎提交 [Issue](https://github.com/1340896123/PLM.ArasUtils/issues) 和 [Pull Request](https://github.com/1340896123/PLM.ArasUtils/pulls) 来改进这个项目。
+
+### 如何贡献
+1. Fork 本仓库
+2. 创建你的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交你的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启一个 Pull Request
