@@ -12,7 +12,7 @@ PLM.ArasUtils 是一个针对 Aras Innovator PLM 系统的 .NET 扩展库，提�
 ## 项目信息
 
 - **项目名称**: PLM.ArasUtils
-- **版本**: 1.0.7
+- **版本**: 1.0.8
 - **作者**: Liaoyujie
 - **目标框架**: .NET Standard 2.0
 - **语言版本**: C# 13
@@ -20,6 +20,13 @@ PLM.ArasUtils 是一个针对 Aras Innovator PLM 系统的 .NET 扩展库，提�
 - **GitHub**: https://github.com/1340896123/PLM.ArasUtils
 - **NuGet**: https://www.nuget.org/packages/PLM.ArasUtils/
 - **NuGet Info**: https://nuget.info/packages/PLM.ArasUtils
+
+## 核心命名空间
+
+- **PLM.ArasUtils** - 主要扩展方法集合
+- **PLM.ArasUtils.Extend** - Aras Item 对象的核心扩展方法
+- **PLM.ArasUtils.ItemPropertyExtend** - 标准属性的类型安全访问器
+- **PLM.ArasUtils.IEnumerableItemExtensions** - Item 集合的 LINQ 扩展方法
 
 ## 支持的 Aras 版本
 
@@ -145,6 +152,15 @@ item.CheckError();
 
 // 批量错误检查
 items.CheckError();
+
+// 检查集合中是否有错误项
+bool hasErrors = items.HasErrors();
+
+// 获取错误项
+var errorItems = items.GetErrorItems();
+
+// 获取有效项（非错误项）
+var validItems = items.GetValidItems();
 ```
 
 ## API 参考
@@ -201,6 +217,50 @@ items.CheckError();
 - `Generation<T>(this Item item, T defaultValue = default)`
 - `IsCurrent<T>(this Item item, T defaultValue = default)`
 - `IsReleased<T>(this Item item, T defaultValue = default)`
+
+### IEnumerableItemExtensions 类
+
+该类提供了对 Item 集合的高级 LINQ 操作支持，包含超过50个扩展方法。
+
+#### 查询和过滤方法
+- `WhereProperty(this IEnumerable<Item> items, string propertyName, string value)`: 根据属性值过滤
+- `WhereProperty<T>(this IEnumerable<Item> items, string propertyName, T value)`: 泛型版本属性过滤
+- `WherePropertyContains(this IEnumerable<Item> items, string propertyName, string containsValue, bool ignoreCase = true)`: 根据属性包含内容过滤
+- `WherePropertyInRange<T>(this IEnumerable<Item> items, string propertyName, T minValue, T maxValue)`: 根据属性值范围过滤
+- `FirstOrDefaultByProperty(this IEnumerable<Item> items, string propertyName, string value)`: 获取第一个符合条件的项
+- `DistinctByProperty(this IEnumerable<Item> items, string propertyName)`: 根据属性去重
+
+#### 转换和映射方法
+- `ToDictionary(this IEnumerable<Item> items)`: 转换为以ID为键的字典
+- `ToDictionaryByProperty(this IEnumerable<Item> items, string propertyName)`: 转换为以指定属性为键的字典
+- `SelectProperty(this IEnumerable<Item> items, string propertyName)`: 选择特定属性值
+- `SelectProperty<T>(this IEnumerable<Item> items, string propertyName)`: 泛型版本属性选择
+- `SelectProperties(this IEnumerable<Item> items, params string[] propertyNames)`: 选择多个属性值
+- `getProperty(this IEnumerable<Item> items, string propertyName, string defaultValue = "")`: 获取集合中所有Item的指定属性值
+- `getProperty<T>(this IEnumerable<Item> items, string propertyName)`: 泛型版本获取属性值集合
+
+#### 批量操作方法
+- `ApplyAction(this IEnumerable<Item> items, string action)`: 批量应用特定动作
+- `BatchUpdate(this IEnumerable<Item> items, string propertyName, string value)`: 批量更新单个属性
+- `BatchUpdate(this IEnumerable<Item> items, Dictionary<string, string> properties)`: 批量更新多个属性
+
+#### 分组和统计分析方法
+- `GroupByProperty(this IEnumerable<Item> items, string propertyName)`: 按属性分组
+- `CountByProperty(this IEnumerable<Item> items, string propertyName)`: 按属性分组计数
+
+#### 验证和错误处理方法
+- `Validate(this IEnumerable<Item> items, Func<Item, bool> validator)`: 验证Item集合
+- `HasErrors(this IEnumerable<Item> items)`: 检查集合中是否有错误项
+- `GetValidItems(this IEnumerable<Item> items)`: 获取有效项（非错误项）
+- `GetErrorItems(this IEnumerable<Item> items)`: 获取错误项
+
+#### 分页和大数据处理方法
+- `Page(this IEnumerable<Item> items, int pageIndex, int pageSize)`: 分页处理
+- `GetPageInfo(this IEnumerable<Item> items, int pageSize)`: 获取分页信息
+
+#### JSON 序列化方法
+- `ToJson(this IEnumerable<Item> items)`: 转换为JSON字符串
+- `ToJson(this IEnumerable<Item> items, params string[] propertyNames)`: 转换指定属性为JSON字符串
 
 ## Aras IOM API 参考手册
 
@@ -489,6 +549,55 @@ var result = items
     .apply();
 ```
 
+### 高级 LINQ 查询和过滤
+```csharp
+// 根据属性值过滤
+var makeParts = items.WhereProperty("make_buy", "Make");
+var expensiveParts = items.WherePropertyInRange<double>("cost", 100.0, 1000.0);
+var filteredParts = items.WherePropertyContains("name", "Gear", ignoreCase: true);
+
+// 复杂查询示例
+var specificParts = items
+    .WhereProperty("make_buy", "Make")
+    .WherePropertyContains("name", "Assembly")
+    .DistinctByProperty("classification")
+    .Validate(item => !string.IsNullOrEmpty(item.getProperty("item_number")))
+    .ToList();
+
+// 分页处理大数据集
+var pageSize = 50;
+var pageIndex = 2;
+var pagedItems = items.Page(pageIndex, pageSize);
+var (totalCount, totalPages) = items.GetPageInfo(pageSize);
+```
+
+### 统计分析和分组
+```csharp
+// 按属性分组统计
+var makeBuyStats = items.CountByProperty("make_buy");
+var groupedByClassification = items.GroupByProperty("classification");
+
+// 转换为字典便于快速查找
+var itemDict = items.ToDictionary();
+var itemByNameDict = items.ToDictionaryByProperty("item_number");
+
+// 选择特定属性
+var itemNumbers = items.SelectProperty("item_number");
+var creationDates = items.SelectProperty<DateTime>("created_on");
+```
+
+### JSON 序列化
+```csharp
+// 将Item集合序列化为JSON
+var allItemsJson = items.ToJson();
+var specificPropertiesJson = items.ToJson("item_number", "name", "created_on");
+
+// 单个JSON转换
+var jsonString = item.ToJson();
+var jsonObject = jsonString.ToJObject();
+var jsonArray = jsonString.ToJArrary();
+```
+
 ### 本地化标签获取
 ```csharp
 // 获取属性的本地化标签
@@ -569,7 +678,7 @@ connection.Logout();
 ### NuGet 包信息
 
 - **包名**: `PLM.ArasUtils`
-- **版本**: 1.0.7
+- **版本**: 1.0.8
 - **NuGet Gallery**: https://www.nuget.org/packages/PLM.ArasUtils/
 - **NuGet Info**: https://nuget.info/packages/PLM.ArasUtils
 
@@ -587,7 +696,7 @@ dotnet add package PLM.ArasUtils
 
 #### 项目文件引用
 ```xml
-<PackageReference Include="PLM.ArasUtils" Version="1.0.7" />
+<PackageReference Include="PLM.ArasUtils" Version="1.0.8" />
 ```
 
 ## 快速开始
