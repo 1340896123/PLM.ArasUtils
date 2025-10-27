@@ -9,13 +9,22 @@
 		<FileVersion></FileVersion>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<VersionPrefix>1.0.7</VersionPrefix>
+		<VersionPrefix>1.0.8</VersionPrefix>
 		<Authors>Liaoyujie</Authors>
 		<LangVersion>13</LangVersion>
 		<PackageReadmeFile>Readme.md</PackageReadmeFile>
-		<Configurations>Debug;Release;11sp12Released;12sp9Released</Configurations>
+		<Description>PLM.ArasUtils 是一个针对 Aras Innovator PLM 系统的 .NET 扩展库，提供了丰富的扩展方法来简化 Aras IOM API 的使用。支持 LINQ 查询、链式调用和类型安全的属性访问，让 PLM 开发更加高效便捷。</Description>
+		<PackageTags>Aras;PLM;Innovator;IOM;Extension;Utility</PackageTags>
+		<RepositoryUrl>https://github.com/1340896123/PLM.ArasUtils</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/1340896123/PLM.ArasUtils</PackageProjectUrl>
+		<RepositoryType>git</RepositoryType>
+	<Configurations>Debug;Release;11sp12Released;12sp9Released</Configurations>
 	</PropertyGroup>
-	<ItemGroup Condition="'$(Configuration)' == 'Released'">
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<PackageReference Include="com.broadway.aras.2023r" Version="14.1.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
 		<PackageReference Include="com.broadway.aras.2023r" Version="14.1.3" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
