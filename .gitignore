@@ -286,3 +286,58 @@ Desktop.ini
 # User-specific files
 *.csproj.user
 *.csproj.user
+
+# Visual Studio user-specific files
+Properties/PublishProfiles/*.user
+
+# Build output specific to this project
+bin/Released/
+bin/Debug/
+bin/Release/
+obj/Debug/
+obj/Release/
+obj/Released/
+
+# Configuration-specific build outputs
+bin/11sp12Released/
+bin/12sp9Released/
+obj/11sp12Released/
+obj/12sp9Released/
+
+# Local configuration and temporary files
+*.local.json
+*.temp
+*.tmp
+temp/
+tmp/
+
+# IDE specific files
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Large files that shouldn't be in version control
+*.zip
+*.rar
+*.7z
+*.tar.gz
+*.iso
+*.dmg
+
+# Test and coverage reports
+coverage/
+test-results/
+*.trx
+
+# Documentation build output
+docs/_build/
+docs/site/
