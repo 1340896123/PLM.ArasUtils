@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<AssemblyVersion></AssemblyVersion>
+		<FileVersion></FileVersion>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<VersionPrefix>1.0.7</VersionPrefix>
+		<Authors>Liaoyujie</Authors>
+		<LangVersion>13</LangVersion>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<Configurations>Debug;Release;11sp12Released;12sp9Released</Configurations>
+	</PropertyGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Released'">
+		<PackageReference Include="com.broadway.aras.2023r" Version="14.1.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == '11sp12Released'">
+		<Reference Include="IOM">
+			<HintPath>E:\Program Files (x86)\Aras\Innovatorv11sp12_bw\Innovator\Server\bin\IOM.dll</HintPath>
+		</Reference>
+		<PackageReference Include="Newtonsoft.Json" Version="8.0.0.0" />
+	</ItemGroup>
+	<ItemGroup Condition=" '$(Configuration)' == '12sp9Released'  ">
+		<Reference Include="IOM">
+			<HintPath>E:\Program Files (x86)\Aras\12SP9\Innovator\Server\bin\IOM.dll</HintPath>
+		</Reference>
+		<PackageReference Include="Newtonsoft.Json" Version="11.0.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Readme.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+</Project>
